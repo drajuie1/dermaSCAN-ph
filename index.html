@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DermaScan PH — MPOX & Chickenpox Detector</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ WELCOME OVERLAY ═══ -->
+<div id="welcome-overlay" class="overlay active">
+  <div class="welcome-box">
+    <div class="welcome-left">
+      <div class="wl-logo">🔬</div>
+      <h1 class="wl-title">DermaScan PH</h1>
+      <p class="wl-sub" data-en="Skin Condition Detector" data-fil="Tagapagtuklas ng Kondisyon ng Balat">Skin Condition Detector</p>
+      <div class="lang-pills">
+        <button class="lang-pill active" onclick="setLang('EN')">English</button>
+        <button class="lang-pill" onclick="setLang('FIL')">Filipino</button>
+      </div>
+      <div class="wl-disclaimer" data-en="⚠️ For informational purposes only. Not a substitute for medical diagnosis." data-fil="⚠️ Para sa impormasyon lamang. Hindi kapalit ng medikal na diagnosis.">⚠️ For informational purposes only. Not a substitute for medical diagnosis.</div>
+    </div>
+    <div class="welcome-right">
+      <h2 class="wr-title" data-en="📌 How To Use This App" data-fil="📌 Paano Gamitin Ang App">📌 How To Use This App</h2>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body"><strong data-en="Prepare your photo" data-fil="Ihanda ang larawan">Prepare your photo</strong><span data-en=" — Take a clear, well-lit image of the affected skin area." data-fil=" — Kumuha ng malinaw na larawan ng apektadong bahagi ng balat."> — Take a clear, well-lit image of the affected skin area.</span></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body"><strong data-en="Upload the image" data-fil="I-upload ang larawan">Upload the image</strong><span data-en=" — Go to Upload & Scan and select your photo." data-fil=" — Pumunta sa Upload & Scan at piliin ang inyong larawan."> — Go to Upload & Scan and select your photo.</span></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body"><strong data-en="Analyze" data-fil="Suriin">Analyze</strong><span data-en=" — The AI will examine your image for signs of MPOX or Chickenpox." data-fil=" — Susuriin ng AI ang larawan para sa senyales ng MPOX o Bulutong-tubig."> — The AI will examine your image for signs of MPOX or Chickenpox.</span></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body"><strong data-en="Read your results" data-fil="Basahin ang resulta">Read your results</strong><span data-en=" — See a confidence score and what was detected." data-fil=" — Tingnan ang confidence score at kung ano ang natuklasan."> — See a confidence score and what was detected.</span></div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-body"><strong data-en="Follow recommendations" data-fil="Sundin ang mga rekomendasyon">Follow recommendations</strong><span data-en=" — Read what to do next and seek care if needed." data-fil=" — Basahin ang dapat gawin at humingi ng tulong kung kailangan."> — Read what to do next and seek care if needed.</span></div></div>
+      </div>
+      <div class="emergency-banner">
+        <span>🚨</span>
+        <span data-en="Emergency? Call DOH Hotline:" data-fil="Emergency? Tawagan ang DOH Hotline:">Emergency? Call DOH Hotline:</span>
+        <strong>1555</strong>
+        <span>·</span>
+        <strong>911</strong>
+      </div>
+      <button class="start-btn" onclick="startApp()" data-en="Get Started →" data-fil="Magsimula →">Get Started →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <span class="sb-icon">🔬</span>
+      <div>
+        <div class="sb-name">DermaScan PH</div>
+        <div class="sb-sub" data-en="Skin Condition Detector" data-fil="Tagapagtuklas ng Balat">Skin Condition Detector</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <a class="nav-item active" onclick="showScreen('home')" data-en="🏠  Home" data-fil="🏠  Home">🏠  Home</a>
+      <a class="nav-item" onclick="showScreen('scan')" data-en="📷  Upload & Scan" data-fil="📷  Mag-upload & I-scan">📷  Upload & Scan</a>
+      <a class="nav-item" onclick="showScreen('learn')" data-en="📚  Learn: MPOX vs Chickenpox" data-fil="📚  Alamin: MPOX vs Bulutong-tubig">📚  Learn</a>
+      <a class="nav-item" onclick="showScreen('history')" data-en="📋  History" data-fil="📋  Kasaysayan">📋  History</a>
+      <a class="nav-item" onclick="showScreen('emergency')" data-en="🚨  Emergency Contacts" data-fil="🚨  Mga Emergency na Numero">🚨  Emergency</a>
+      <a class="nav-item" onclick="showScreen('credentials')" data-en="👤  Credentials" data-fil="👤  Impormasyon">👤  Credentials</a>
+      <a class="nav-item" onclick="showScreen('settings')" data-en="⚙  Settings" data-fil="⚙  Mga Setting">⚙  Settings</a>
+    </nav>
+    <div class="sb-lang">
+      <button class="lang-pill active" onclick="setLang('EN')">EN</button>
+      <button class="lang-pill" onclick="setLang('FIL')">FIL</button>
+    </div>
+  </aside>
+
+  <!-- HAMBURGER -->
+  <button class="hamburger" onclick="toggleSidebar()" id="hamburger">☰</button>
+
+  <!-- SCREENS -->
+  <main class="main-content">
+
+    <!-- HOME -->
+    <section id="screen-home" class="screen active">
+      <div class="screen-header">
+        <h1 data-en="Welcome back!" data-fil="Maligayang pagbabalik!">Welcome back!</h1>
+        <p id="home-date"></p>
+      </div>
+      <div class="screen-body">
+        <div id="home-greeting" class="greeting-card"></div>
+        <div class="action-grid">
+          <div class="action-card blue" onclick="showScreen('scan')">
+            <div class="ac-icon">📷</div>
+            <div class="ac-label" data-en="Upload & Scan" data-fil="Mag-upload & I-scan">Upload & Scan</div>
+            <div class="ac-desc" data-en="Analyze a skin photo for MPOX or Chickenpox" data-fil="Suriin ang larawan ng balat para sa MPOX o Bulutong-tubig">Analyze a skin photo</div>
+          </div>
+          <div class="action-card green" onclick="showScreen('learn')">
+            <div class="ac-icon">📚</div>
+            <div class="ac-label" data-en="Learn" data-fil="Alamin">Learn</div>
+            <div class="ac-desc" data-en="MPOX vs Chickenpox guide" data-fil="Gabay sa MPOX vs Bulutong-tubig">MPOX vs Chickenpox guide</div>
+          </div>
+          <div class="action-card red" onclick="showScreen('emergency')">
+            <div class="ac-icon">🚨</div>
+            <div class="ac-label" data-en="Emergency" data-fil="Emergency">Emergency</div>
+            <div class="ac-desc" data-en="DOH 1555 · 911 · Red Cross 143" data-fil="DOH 1555 · 911 · Red Cross 143">DOH 1555 · 911 · Red Cross 143</div>
+          </div>
+          <div class="action-card amber" onclick="showScreen('history')">
+            <div class="ac-icon">📋</div>
+            <div class="ac-label" data-en="History" data-fil="Kasaysayan">History</div>
+            <div class="ac-desc" data-en="View past scan records" data-fil="Tingnan ang nakaraang mga scan">View past scan records</div>
+          </div>
+        </div>
+        <div id="last-scan-card" class="last-scan hidden"></div>
+      </div>
+    </section>
+
+    <!-- SCAN -->
+    <section id="screen-scan" class="screen">
+      <div class="screen-header">
+        <h1 data-en="Upload & Scan" data-fil="Mag-upload & I-scan">Upload & Scan</h1>
+        <p data-en="Upload a clear photo of the affected skin area" data-fil="Mag-upload ng malinaw na larawan ng apektadong bahagi ng balat">Upload a clear photo of the affected skin area</p>
+      </div>
+      <div class="screen-body scan-layout">
+        <div class="scan-left">
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+            <div id="upload-placeholder">
+              <div class="uz-icon">🖼️</div>
+              <div class="uz-text" data-en="Click to upload or drag & drop" data-fil="I-click para mag-upload o i-drag & drop">Click to upload or drag & drop</div>
+              <div class="uz-sub" data-en="JPG, PNG, WEBP supported" data-fil="Tinatanggap ang JPG, PNG, WEBP">JPG, PNG, WEBP supported</div>
+            </div>
+            <img id="preview-img" class="hidden" alt="Preview">
+          </div>
+          <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+
+          <div class="scan-btns">
+            <button class="btn-secondary" onclick="document.getElementById('file-input').click()" data-en="Choose Image" data-fil="Pumili ng Larawan">Choose Image</button>
+            <button class="btn-primary" onclick="analyzeImage()" data-en="🔬 Analyze Now" data-fil="🔬 Suriin Ngayon">🔬 Analyze Now</button>
+          </div>
+
+          <div class="disclaimer-box" data-en="⚠️ DISCLAIMER: This app is for informational purposes only and is NOT a substitute for professional medical diagnosis. Always consult a licensed physician." data-fil="⚠️ BABALA: Ang app na ito ay para lamang sa impormasyon at HINDI kapalit ng propesyonal na medikal na diagnosis. Laging kumonsulta sa lisensyadong manggagamot.">⚠️ DISCLAIMER: This app is for informational purposes only and is NOT a substitute for professional medical diagnosis. Always consult a licensed physician.</div>
+        </div>
+
+        <div class="scan-right">
+          <div id="result-area" class="result-placeholder">
+            <div class="rp-icon">🔬</div>
+            <div class="rp-text" data-en="Upload an image and click Analyze to see results" data-fil="Mag-upload ng larawan at i-click ang Suriin para makita ang resulta">Upload an image and click Analyze to see results</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section id="screen-learn" class="screen">
+      <div class="screen-header">
+        <h1 data-en="📚 Learn: MPOX vs Chickenpox" data-fil="📚 Alamin: MPOX vs Bulutong-tubig">📚 Learn: MPOX vs Chickenpox</h1>
+        <p data-en="Understand symptoms, spread, and what to do" data-fil="Unawain ang mga sintomas, pagkalat, at kung ano ang gagawin">Understand symptoms, spread, and what to do</p>
+      </div>
+      <div class="screen-body">
+        <div class="learn-tabs">
+          <button class="tab-btn active" onclick="switchTab('mpox')" data-en="🦠 MPOX" data-fil="🦠 MPOX">🦠 MPOX</button>
+          <button class="tab-btn" onclick="switchTab('cpox')" data-en="💧 Chickenpox" data-fil="💧 Bulutong-tubig">💧 Chickenpox</button>
+          <button class="tab-btn" onclick="switchTab('compare')" data-en="⚖️ Compare" data-fil="⚖️ Paghahambing">⚖️ Compare</button>
+        </div>
+
+        <!-- MPOX TAB -->
+        <div id="tab-mpox" class="tab-content active">
+          <div class="disease-hero red-hero">
+            <div class="dh-icon">🦠</div>
+            <div><h2 data-en="MPOX (Monkeypox)" data-fil="MPOX (Monkeypox / Bulutong-unggoy)">MPOX (Monkeypox)</h2>
+            <p data-en="Caused by the Monkeypox virus · First found in humans in 1970" data-fil="Sanhi ng Monkeypox virus · Unang natuklasan sa tao noong 1970">Caused by the Monkeypox virus · First found in humans in 1970</p></div>
+          </div>
+          <div class="learn-grid">
+            <div class="learn-card">
+              <h3 data-en="🤒 Symptoms" data-fil="🤒 Mga Sintomas">🤒 Symptoms</h3>
+              <div class="tag-cloud">
+                <span class="tag red" data-en="Swollen lymph nodes" data-fil="Namamagang lymph nodes">Swollen lymph nodes</span>
+                <span class="tag red" data-en="High fever (before rash)" data-fil="Mataas na lagnat (bago lumitaw ang pantal)">High fever (before rash)</span>
+                <span class="tag red" data-en="Deep, firm lesions" data-fil="Malalim, matibay na sugat">Deep, firm lesions</span>
+                <span class="tag red" data-en="All lesions same stage" data-fil="Lahat ng sugat sa iisang yugto">All lesions same stage</span>
+                <span class="tag red" data-en="Face → hands/feet → body" data-fil="Mukha → kamay/paa → katawan">Face → hands/feet → body</span>
+                <span class="tag red" data-en="Muscle aches" data-fil="Pananakit ng kalamnan">Muscle aches</span>
+                <span class="tag red" data-en="Exhaustion" data-fil="Pagod">Exhaustion</span>
+              </div>
+            </div>
+            <div class="learn-card">
+              <h3 data-en="📡 How It Spreads" data-fil="📡 Paano Kumakalat">📡 How It Spreads</h3>
+              <ul class="learn-list">
+                <li data-en="Close skin-to-skin contact" data-fil="Malapit na balat-sa-balat na pakikipag-ugnayan">Close skin-to-skin contact</li>
+                <li data-en="Contact with infected animals" data-fil="Pakikipag-ugnayan sa mga impektadong hayop">Contact with infected animals</li>
+                <li data-en="Prolonged respiratory droplets" data-fil="Matagalang patak ng hininga">Prolonged respiratory droplets</li>
+                <li data-en="Contaminated bedding or clothing" data-fil="Kontaminadong kama o damit">Contaminated bedding or clothing</li>
+                <li data-en="NOT as contagious as chickenpox" data-fil="HINDI kasinghawa ng bulutong-tubig">NOT as contagious as chickenpox</li>
+              </ul>
+            </div>
+            <div class="learn-card">
+              <h3 data-en="✅ What To Do" data-fil="✅ Ano ang Gagawin">✅ What To Do</h3>
+              <ul class="learn-list check">
+                <li data-en="ISOLATE immediately" data-fil="Mag-ISOLATE agad">ISOLATE immediately</li>
+                <li data-en="Call DOH Hotline: 1555" data-fil="Tumawag sa DOH Hotline: 1555">Call DOH Hotline: 1555</li>
+                <li data-en="Cover all lesions with bandages" data-fil="Takpan ang lahat ng sugat ng bandahe">Cover all lesions with bandages</li>
+                <li data-en="Wear a mask at all times" data-fil="Magsuot ng maskara palagi">Wear a mask at all times</li>
+                <li data-en="Do NOT share personal items" data-fil="HUWAG magbahagi ng personal na gamit">Do NOT share personal items</li>
+                <li data-en="Antiviral treatment is available" data-fil="Available ang antiviral na lunas">Antiviral treatment is available</li>
+              </ul>
+            </div>
+            <div class="learn-card urgent">
+              <h3 data-en="🚨 See a Doctor Immediately If..." data-fil="🚨 Agad na Pumunta sa Doktor Kung...">🚨 See a Doctor Immediately If...</h3>
+              <ul class="learn-list urgent-list">
+                <li data-en="Difficulty breathing or swallowing" data-fil="Hirap sa paghinga o paglunok">Difficulty breathing or swallowing</li>
+                <li data-en="Rash spreads to eyes" data-fil="Kumakalat ang pantal sa mata">Rash spreads to eyes</li>
+                <li data-en="Fever above 39°C (102°F)" data-fil="Lagnat na higit sa 39°C (102°F)">Fever above 39°C (102°F)</li>
+                <li data-en="Rapidly spreading lesions" data-fil="Mabilis na pagkalat ng pantal">Rapidly spreading lesions</li>
+                <li data-en="You are pregnant or immunocompromised" data-fil="Ikaw ay buntis o may mahinang immune system">You are pregnant or immunocompromised</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHICKENPOX TAB -->
+        <div id="tab-cpox" class="tab-content">
+          <div class="disease-hero amber-hero">
+            <div class="dh-icon">💧</div>
+            <div><h2 data-en="Chickenpox (Varicella)" data-fil="Bulutong-tubig (Varicella)">Chickenpox (Varicella)</h2>
+            <p data-en="Caused by Varicella-Zoster virus · Very common in children" data-fil="Sanhi ng Varicella-Zoster virus · Karaniwan sa mga bata">Caused by Varicella-Zoster virus · Very common in children</p></div>
+          </div>
+          <div class="learn-grid">
+            <div class="learn-card">
+              <h3 data-en="🤒 Symptoms" data-fil="🤒 Mga Sintomas">🤒 Symptoms</h3>
+              <div class="tag-cloud">
+                <span class="tag amber" data-en="Very itchy rash" data-fil="Napaka-kating pantal">Very itchy rash</span>
+                <span class="tag amber" data-en="Multiple stages at once" data-fil="Maraming yugto sabay">Multiple stages at once</span>
+                <span class="tag amber" data-en="Fluid-filled blisters" data-fil="Paltos na may likido">Fluid-filled blisters</span>
+                <span class="tag amber" data-en="Mild to moderate fever" data-fil="Banayad hanggang katamtamang lagnat">Mild to moderate fever</span>
+                <span class="tag amber" data-en="Starts on chest/back" data-fil="Nagsisimula sa dibdib/likod">Starts on chest/back</span>
+                <span class="tag amber" data-en="Headache" data-fil="Sakit ng ulo">Headache</span>
+                <span class="tag amber" data-en="Loss of appetite" data-fil="Kawalan ng gana sa pagkain">Loss of appetite</span>
+              </div>
+            </div>
+            <div class="learn-card">
+              <h3 data-en="📡 How It Spreads" data-fil="📡 Paano Kumakalat">📡 How It Spreads</h3>
+              <ul class="learn-list">
+                <li data-en="Airborne — highly contagious" data-fil="Sa hangin — napaka-nakahahawa">Airborne — highly contagious</li>
+                <li data-en="Direct contact with blister fluid" data-fil="Direktang pakikipag-ugnayan sa likido ng paltos">Direct contact with blister fluid</li>
+                <li data-en="Coughing or sneezing" data-fil="Pag-ubo o pagbahing">Coughing or sneezing</li>
+                <li data-en="Contagious 1–2 days BEFORE rash appears" data-fil="Nakakahawa 1–2 araw BAGO lumitaw ang pantal">Contagious 1–2 days BEFORE rash</li>
+                <li data-en="Until ALL blisters have crusted over" data-fil="Hanggang lahat ng paltos ay matuyo">Until ALL blisters crust over</li>
+              </ul>
+            </div>
+            <div class="learn-card">
+              <h3 data-en="✅ What To Do" data-fil="✅ Ano ang Gagawin">✅ What To Do</h3>
+              <ul class="learn-list check">
+                <li data-en="Stay home and rest" data-fil="Manatili sa bahay at magpahinga">Stay home and rest</li>
+                <li data-en="Do NOT scratch blisters" data-fil="HUWAG kuskusin ang mga paltos">Do NOT scratch blisters</li>
+                <li data-en="Use calamine lotion for itching" data-fil="Gumamit ng calamine lotion para sa kati">Calamine lotion for itching</li>
+                <li data-en="Take paracetamol for fever (NOT aspirin)" data-fil="Uminom ng paracetamol (HINDI aspirin)">Paracetamol for fever (NOT aspirin)</li>
+                <li data-en="Wear loose cotton clothing" data-fil="Magsuot ng maluwag na bulak na damit">Loose cotton clothing</li>
+                <li data-en="Ask doctor about varicella vaccine" data-fil="Tanungin ang doktor tungkol sa varicella vaccine">Ask about varicella vaccine</li>
+              </ul>
+            </div>
+            <div class="learn-card urgent">
+              <h3 data-en="🚨 See a Doctor Immediately If..." data-fil="🚨 Agad na Pumunta sa Doktor Kung...">🚨 See a Doctor Immediately If...</h3>
+              <ul class="learn-list urgent-list">
+                <li data-en="Rash spreads to eyes" data-fil="Kumakalat ang pantal sa mata">Rash spreads to eyes</li>
+                <li data-en="Rash is red, warm, or has pus (infection)" data-fil="Ang pantal ay mapula, mainit, o may nana">Rash is red, warm, or has pus</li>
+                <li data-en="High fever above 39°C" data-fil="Mataas na lagnat na higit sa 39°C">High fever above 39°C</li>
+                <li data-en="You are an adult, pregnant, or elderly" data-fil="Ikaw ay matanda, buntis, o matatanda">Adult, pregnant, or elderly</li>
+                <li data-en="Newborn has symptoms" data-fil="Ang bagong silang ay may sintomas">Newborn has symptoms</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPARE TAB -->
+        <div id="tab-compare" class="tab-content">
+          <div class="compare-wrap">
+            <h2 class="compare-title" data-en="⚖️ Side-by-Side Comparison" data-fil="⚖️ Paghahambing">⚖️ Side-by-Side Comparison</h2>
+            <div class="compare-table-wrap">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th data-en="Feature" data-fil="Katangian">Feature</th>
+                    <th class="col-mpox" data-en="🦠 MPOX" data-fil="🦠 MPOX">🦠 MPOX</th>
+                    <th class="col-cpox" data-en="💧 Chickenpox" data-fil="💧 Bulutong-tubig">💧 Chickenpox</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td data-en="Cause" data-fil="Sanhi">Cause</td><td data-en="Monkeypox virus" data-fil="Monkeypox virus">Monkeypox virus</td><td data-en="Varicella-Zoster virus" data-fil="Varicella-Zoster virus">Varicella-Zoster virus</td></tr>
+                  <tr><td data-en="Lymph nodes" data-fil="Lymph nodes">Lymph nodes</td><td class="highlight-red" data-en="Swollen ✓ (key sign)" data-fil="Namamaga ✓ (pangunahing palatandaan)">Swollen ✓ (key sign)</td><td data-en="Usually normal" data-fil="Karaniwang normal">Usually normal</td></tr>
+                  <tr><td data-en="Rash stages" data-fil="Yugto ng pantal">Rash stages</td><td data-en="All same stage at once" data-fil="Lahat sabay na yugto">All same stage at once</td><td class="highlight-amber" data-en="Multiple stages visible" data-fil="Maraming yugto sabay">Multiple stages visible</td></tr>
+                  <tr><td data-en="Lesion depth" data-fil="Lalim ng sugat">Lesion depth</td><td data-en="Deep, firm, well-defined" data-fil="Malalim, matibay, malinaw">Deep, firm, well-defined</td><td data-en="Superficial, soft" data-fil="Mababaw, malambot">Superficial, soft</td></tr>
+                  <tr><td data-en="Itch level" data-fil="Antas ng kati">Itch level</td><td data-en="Moderate" data-fil="Katamtaman">Moderate</td><td class="highlight-amber" data-en="Very itchy" data-fil="Napaka-kati">Very itchy</td></tr>
+                  <tr><td data-en="Fever timing" data-fil="Oras ng lagnat">Fever timing</td><td class="highlight-red" data-en="High, BEFORE rash" data-fil="Mataas, BAGO lumitaw ang pantal">High, BEFORE rash</td><td data-en="Mild, with rash" data-fil="Banayad, kasabay ng pantal">Mild, with rash</td></tr>
+                  <tr><td data-en="Contagiousness" data-fil="Nakahahawa">Contagiousness</td><td data-en="Moderate" data-fil="Katamtaman">Moderate</td><td class="highlight-amber" data-en="Very high (airborne)" data-fil="Napaka-nakahahawa (sa hangin)">Very high (airborne)</td></tr>
+                  <tr><td data-en="Treatment" data-fil="Lunas">Treatment</td><td data-en="Antiviral (tecovirimat)" data-fil="Antiviral (tecovirimat)">Antiviral (tecovirimat)</td><td data-en="Usually self-limiting" data-fil="Karaniwang gumagaling nang kusa">Usually self-limiting</td></tr>
+                  <tr><td data-en="Vaccine" data-fil="Bakuna">Vaccine</td><td data-en="Smallpox vaccine" data-fil="Bakuna laban sa smallpox">Smallpox vaccine</td><td data-en="Varicella vaccine" data-fil="Bakuna laban sa varicella">Varicella vaccine</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="screen-history" class="screen">
+      <div class="screen-header">
+        <h1 data-en="📋 Scan History" data-fil="📋 Kasaysayan ng Scan">📋 Scan History</h1>
+        <p data-en="Your past scan records stored on this device" data-fil="Ang iyong mga nakaraang scan na nakaimbak sa device na ito">Your past scan records stored on this device</p>
+      </div>
+      <div class="screen-body">
+        <div class="history-toolbar">
+          <button class="btn-danger" onclick="clearHistory()" data-en="🗑 Clear History" data-fil="🗑 Burahin ang Kasaysayan">🗑 Clear History</button>
+        </div>
+        <div id="history-list"></div>
+      </div>
+    </section>
+
+    <!-- EMERGENCY -->
+    <section id="screen-emergency" class="screen">
+      <div class="screen-header">
+        <h1 data-en="🚨 Emergency Contacts" data-fil="🚨 Mga Emergency na Numero">🚨 Emergency Contacts</h1>
+        <p data-en="Philippines health hotlines — available 24/7" data-fil="Mga hotline sa kalusugan sa Pilipinas — available 24/7">Philippines health hotlines — available 24/7</p>
+      </div>
+      <div class="screen-body">
+        <div class="emergency-grid">
+          <a href="tel:1555" class="emergency-card ec-blue">
+            <div class="ec-icon">🏥</div>
+            <div class="ec-num">1555</div>
+            <div class="ec-name" data-en="DOH Hotline" data-fil="DOH Hotline">DOH Hotline</div>
+            <div class="ec-desc" data-en="Dept. of Health · Free · 24/7" data-fil="Kagawaran ng Kalusugan · Libre · 24/7">Dept. of Health · Free · 24/7</div>
+          </a>
+          <a href="tel:911" class="emergency-card ec-red">
+            <div class="ec-icon">🚑</div>
+            <div class="ec-num">911</div>
+            <div class="ec-name" data-en="National Emergency" data-fil="Pambansang Emergency">National Emergency</div>
+            <div class="ec-desc" data-en="All emergencies · 24/7" data-fil="Lahat ng emergency · 24/7">All emergencies · 24/7</div>
+          </a>
+          <a href="tel:143" class="emergency-card ec-green">
+            <div class="ec-icon">🩺</div>
+            <div class="ec-num">143</div>
+            <div class="ec-name" data-en="Red Cross" data-fil="Red Cross">Red Cross</div>
+            <div class="ec-desc" data-en="Philippine Red Cross" data-fil="Philippine Red Cross">Philippine Red Cross</div>
+          </a>
+          <a href="tel:028441-7442" class="emergency-card ec-purple">
+            <div class="ec-icon">💊</div>
+            <div class="ec-num">8441-7442</div>
+            <div class="ec-name">PhilHealth</div>
+            <div class="ec-desc" data-en="Health insurance hotline" data-fil="Hotline ng health insurance">Health insurance hotline</div>
+          </a>
+          <a href="tel:028807-2628" class="emergency-card ec-teal">
+            <div class="ec-icon">🔬</div>
+            <div class="ec-num">8807-2628</div>
+            <div class="ec-name">RITM</div>
+            <div class="ec-desc" data-en="Research Inst. for Tropical Medicine" data-fil="Research Inst. for Tropical Medicine">Research Inst. for Tropical Medicine</div>
+          </a>
+          <a href="https://www.doh.gov.ph" target="_blank" class="emergency-card ec-navy">
+            <div class="ec-icon">🌐</div>
+            <div class="ec-num" style="font-size:1rem">doh.gov.ph</div>
+            <div class="ec-name" data-en="DOH Website" data-fil="Website ng DOH">DOH Website</div>
+            <div class="ec-desc" data-en="Official Department of Health" data-fil="Opisyal na Kagawaran ng Kalusugan">Official Department of Health</div>
+          </a>
+        </div>
+        <div class="emergency-alert" data-en="⚠️ If you suspect MPOX: ISOLATE immediately and call DOH at 1555 BEFORE going to a hospital." data-fil="⚠️ Kung pinaghihinalaang MPOX: Mag-ISOLATE agad at tumawag sa DOH sa 1555 BAGO pumunta sa ospital.">⚠️ If you suspect MPOX: ISOLATE immediately and call DOH at 1555 BEFORE going to a hospital.</div>
+      </div>
+    </section>
+
+    <!-- CREDENTIALS -->
+    <section id="screen-credentials" class="screen">
+      <div class="screen-header">
+        <h1 data-en="👤 Credentials" data-fil="👤 Impormasyon ng Gumagamit">👤 Credentials</h1>
+        <p data-en="Your personal details stored privately on this device" data-fil="Ang iyong personal na impormasyon na nakaimbak sa device na ito">Your personal details stored privately on this device</p>
+      </div>
+      <div class="screen-body">
+        <div class="form-card">
+          <div class="form-group">
+            <label data-en="Full Name" data-fil="Buong Pangalan">Full Name</label>
+            <input type="text" id="cred-name" placeholder="e.g. Maria Santos">
+          </div>
+          <div class="form-group">
+            <label data-en="Age" data-fil="Edad">Age</label>
+            <input type="number" id="cred-age" placeholder="e.g. 25" min="1" max="120">
+          </div>
+          <div class="form-group">
+            <label data-en="Gender" data-fil="Kasarian">Gender</label>
+            <select id="cred-gender">
+              <option value="" data-en="Select..." data-fil="Pumili...">Select...</option>
+              <option value="Male" data-en="Male" data-fil="Lalaki">Male</option>
+              <option value="Female" data-en="Female" data-fil="Babae">Female</option>
+              <option value="Other" data-en="Other" data-fil="Iba pa">Other</option>
+              <option value="Prefer not to say" data-en="Prefer not to say" data-fil="Ayaw sabihin">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-en="City / Province" data-fil="Lungsod / Lalawigan">City / Province</label>
+            <input type="text" id="cred-location" placeholder="e.g. Quezon City, Metro Manila">
+          </div>
+          <div class="privacy-note">🔒 <span data-en="Your data is saved only in your browser. Nothing is sent to any server." data-fil="Ang iyong data ay nakaimbak lamang sa iyong browser. Walang ipinapadala sa anumang server.">Your data is saved only in your browser. Nothing is sent to any server.</span></div>
+          <button class="btn-primary" onclick="saveCredentials()" data-en="💾 Save" data-fil="💾 I-save">💾 Save</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="screen-settings" class="screen">
+      <div class="screen-header">
+        <h1 data-en="⚙ Settings" data-fil="⚙ Mga Setting">⚙ Settings</h1>
+        <p data-en="Customize your DermaScan PH experience" data-fil="I-customize ang iyong karanasan sa DermaScan PH">Customize your DermaScan PH experience</p>
+      </div>
+      <div class="screen-body">
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label" data-en="Language / Wika" data-fil="Wika / Language">Language / Wika</div>
+              <div class="setting-sub" data-en="Choose your preferred language" data-fil="Piliin ang inyong gustong wika">Choose your preferred language</div>
+            </div>
+            <div class="setting-control">
+              <button class="lang-pill active" onclick="setLang('EN')">English</button>
+              <button class="lang-pill" onclick="setLang('FIL')">Filipino</button>
+            </div>
+          </div>
+          <div class="setting-divider"></div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label" data-en="Theme" data-fil="Tema">Theme</div>
+              <div class="setting-sub" data-en="Light or dark mode" data-fil="Light o dark mode">Light or dark mode</div>
+            </div>
+            <div class="setting-control">
+              <button class="toggle-btn active" id="theme-light" onclick="setTheme('light')" data-en="☀️ Light" data-fil="☀️ Maliwanag">☀️ Light</button>
+              <button class="toggle-btn" id="theme-dark" onclick="setTheme('dark')" data-en="🌙 Dark" data-fil="🌙 Madilim">🌙 Dark</button>
+            </div>
+          </div>
+          <div class="setting-divider"></div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label" data-en="Reset Welcome Screen" data-fil="I-reset ang Welcome Screen">Reset Welcome Screen</div>
+              <div class="setting-sub" data-en="Show the how-to guide again on next visit" data-fil="Ipakita muli ang how-to guide sa susunod na pagbisita">Show the how-to guide again on next visit</div>
+            </div>
+            <div class="setting-control">
+              <button class="btn-secondary" onclick="resetWelcome()" data-en="Reset" data-fil="I-reset">Reset</button>
+            </div>
+          </div>
+          <div class="setting-divider"></div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label" data-en="Clear All Data" data-fil="Burahin ang Lahat ng Data">Clear All Data</div>
+              <div class="setting-sub" data-en="Delete scan history and credentials" data-fil="Burahin ang kasaysayan ng scan at mga kredensyal">Delete scan history and credentials</div>
+            </div>
+            <div class="setting-control">
+              <button class="btn-danger" onclick="clearAllData()" data-en="Clear" data-fil="Burahin">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
